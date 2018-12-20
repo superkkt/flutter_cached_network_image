@@ -189,6 +189,10 @@ class _ImageProviderResolver {
   ImageInfo _imageInfo;
 
   void resolve(CachedNetworkImageProvider provider) {
+    if (state.mounted == false || state.context == null) {
+      return;
+    }
+
     final ImageStream oldImageStream = _imageStream;
     _imageStream = provider.resolve(createLocalImageConfiguration(state.context,
         size: widget.width != null && widget.height != null
@@ -237,6 +241,10 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
       vsync: this,
     );
     _controller.addListener(() {
+      if (this.mounted == false) {
+        return;
+      }
+
       setState(() {
         // Trigger rebuild to update opacity value.
       });
@@ -250,6 +258,10 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
 
   @override
   void didChangeDependencies() {
+    if (this.mounted == false || context == null) {
+      return;
+    }
+
     _imageProvider
         .obtainKey(createLocalImageConfiguration(context))
         .then<void>((CachedNetworkImageProvider key) {
@@ -288,6 +300,10 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
   }
 
   void _updatePhase() {
+    if (this.mounted == false) {
+      return;
+    }
+
     setState(() {
       switch (_phase) {
         case ImagePhase.start:
@@ -373,10 +389,17 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
   }
 
   void _imageLoadingFailed() {
+    if (this.mounted == false || context == null) {
+      return;
+    }
+
     _imageProvider
         .obtainKey(createLocalImageConfiguration(context))
         .then<void>((CachedNetworkImageProvider key) {
       if (!CachedNetworkImage._registeredErrors.contains(key)) {
+        if (this.mounted == false) {
+          return;
+        }
         CachedNetworkImage._registeredErrors.add(key);
       }
     });
