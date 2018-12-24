@@ -45,6 +45,7 @@ class CachedNetworkImage extends StatefulWidget {
     this.repeat: ImageRepeat.noRepeat,
     this.matchTextDirection: false,
     this.httpHeaders,
+    this.onFetched,
   })  : assert(imageUrl != null),
         assert(fadeOutDuration != null),
         assert(fadeOutCurve != null),
@@ -144,6 +145,8 @@ class CachedNetworkImage extends StatefulWidget {
 
   // Optional headers for the http request of the image url
   final Map<String, String> httpHeaders;
+
+  final VoidCallback onFetched;
 
   @override
   State<StatefulWidget> createState() => new _CachedNetworkImageState();
@@ -335,6 +338,9 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
           if (_controller.status == AnimationStatus.completed) {
             // Done finding in new image.
             _phase = ImagePhase.completed;
+            if (widget.onFetched != null) {
+              widget.onFetched();
+            }
           }
           break;
         case ImagePhase.completed:
@@ -391,6 +397,9 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
   void _imageLoadingFailed() {
     if (this.mounted == false || context == null) {
       return;
+    }
+    if (widget.onFetched != null) {
+      widget.onFetched();
     }
 
     _imageProvider
